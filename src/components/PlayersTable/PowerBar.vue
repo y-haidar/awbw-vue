@@ -1,25 +1,20 @@
 <template>
     <div class="player-overview-bar">
-        <!-- `.main-co-bar`: used in js -->
-        <!-- `.co-bar-container`: used in css -->
-        <!-- TODO: class combine? -->
         <!-- {{ CopStarsWorth }} -->
         <!-- {{ playersInfo[playerId]?.co_name }} -->
         <!-- {{ copm_val / 10 }} -->
         <!-- {{ powerStarsFillePercentage }} -->
-        <div class="main-co-bar co-bar-container">
-            <div class="cop-on-text"></div>
-        </div>
-        <Tooltip class="power-bar">
-            <div class="co-power cop-star-percent">
+
+        <!-- TODO: class combine? -->
+        <!-- `.main-co-bar`: used in js -->
+        <!-- `.co-bar-container`: used in css -->
+        <Tooltip class="main-co-bar co-bar-container">
+            <div :class="`cop-on-text ${powerText?.txt_class}`">{{ powerText?.text }}</div>
+            <div class="power-bar" :style="powerText?.bar_style">
                 <div :style="powerStarsFillePercentage?.cop[index]"
-                    v-for="_, index of CopStarsCount[playerId]?.copStarsCount" class="cop-star power-star" />
-                <!-- <div class="cop-star power-star">.</div> -->
-            </div>
-            <div class="super-co-power scop-star-percent">
+                    v-for="_, index of CoStarsCount[props.playerId]?.cop" class="cop-star power-star" />
                 <div :style="powerStarsFillePercentage?.scop[index]"
-                    v-for="_, index of CopStarsCount[playerId]?.scopStarsCount" class="scop-star power-star" />
-                <!-- <div class="scop-star power-star">.</div> -->
+                    v-for="_, index of CoStarsCount[props.playerId]?.scop" class="scop-star power-star" />
             </div>
             <template #tooltip>
                 <div class="power-percent-display hover-text">
@@ -63,6 +58,11 @@
     --border-size: 1px;
 }
 
+/* PowerBar Text
+* =====================================================
+* =====================================================
+* ===================================================== */
+
 .cop-on-text {
     /* from inline */
     /* visibility: hidden; */
@@ -71,23 +71,42 @@
     position: absolute;
 }
 
-/* PowerBar
+.co-bar-power-cop {
+    animation: anim-cop-text 4s linear infinite;
+    background: linear-gradient(to right, rgb(230, 96, 96), rgb(197, 13, 13));
+    background-size: auto;
+    background-clip: border-box;
+    background-clip: text;
+    background-clip: border-box;
+    background-size: auto auto;
+    font-size: 20px;
+    font-weight: bold;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+    top: -4px;
+}
+
+.co-bar-power-scop {
+    animation: anim-cop-text 4s linear infinite;
+    background: linear-gradient(to right, rgb(76, 167, 241), rgb(0, 82, 177));
+    background-size: auto;
+    background-clip: border-box;
+    background-clip: text;
+    background-clip: border-box;
+    background-size: auto auto;
+    font-size: 20px;
+    font-weight: bold;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+    top: -4px;
+}
+
+/* PowerBar Stars
 * =====================================================
 * =====================================================
 * ===================================================== */
-
-.power-bar {
-    /* TODO: remove important */
-    width: 100% !important;
-}
-
-.co-power {
-    /* TODO: var width */
-}
-
-.super-co-power {
-    /* TODO: var width */
-}
 
 .power-bar,
 .co-power,
@@ -96,19 +115,12 @@
     display: flex;
     flex-direction: row;
     position: relative;
-    /* TODO remove */
     width: 100%;
 }
 
-.co-power .power-star:last-child {
-    /* TODO: var, to add border if no scop exist? */
-    /* border-right: 1px solid black; */
+.power-star:last-child {
+    border-right: 1px solid black;
 }
-
-.super-co-power .power-star:last-child {
-    border-right: var(--border-size) solid black;
-}
-
 
 .power-star {
     border: var(--border-size) solid black;
@@ -117,26 +129,17 @@
     position: relative;
 }
 
-/* Maybe this is too extreme */
-/* .co-power .power-star:last-child,
-.super-co-power .power-star:last-child {
-    width: calc(50% + 1px);
-} */
-
 .cop-star {
-    /* TODO: move this to js
-    --fill-percentage: 100%; */
     height: 5px;
-    /* TODO: var */
     width: 100%;
 }
 
 .scop-star {
     height: 10px;
-    /* TODO: var */
     width: 100%;
 }
 
+.scop-star::after,
 .cop-star::after {
     content: '';
     --fill-border-size: 3px;
@@ -147,26 +150,9 @@
     top: calc(var(--fill-border-size) * -1);
     left: calc(var(--border-size) * -1);
     height: calc(100%);
-    width: calc(var(--fill-percentage) + var(--border-size));
+    width: calc(var(--fill-percentage) + (var(--border-size)*2));
+    z-index: 1;
 }
-
-/* .cop-star-percent::after {
-    height: 5px;
-    width: 100%;
-}
-.scop-star-percent::after {
-    height: 10px;
-    width: 10%;
-}
-.cop-star-percent::after,
-.scop-star-percent::after {
-    content: '';
-    background: rgba(28, 201, 129, 0.6);
-    border-top: 3px solid rgba(0, 187, 109, 0.9);
-    border-bottom: 3px solid rgba(0, 187, 109, 0.9);
-    position: absolute;
-    top: -3px;
-} */
 
 .power-buttons {
     display: flex;
@@ -178,9 +164,10 @@
 </style>
 
 <script setup lang="ts">
-import { gameStore, CopStarsWorth, CopStarsCount } from '@/game/game_state';
+import { gameStore, CoStarsWorth, CoStarsCount } from '@/game/game_state';
 import Tooltip from '../core/Tooltip.vue';
-import { computed, useTemplateRef, watch } from 'vue';
+import { computed } from 'vue';
+import { playersInfo } from '@/game/game_state_demo';
 
 const props = defineProps({
     playerId: {
@@ -196,14 +183,21 @@ const props = defineProps({
 
 // let x = gameStore.playersInfo['s']?.players_co_max_spower;
 
-/** CO Power Meter current value */
-const copm_val = computed(() => {
-    return gameStore.playersInfo[props.playerId]?.players_co_power!;
+const powerText = computed(() => {
+    switch (gameStore.playersInfo[props.playerId]!.players_co_power_on) {
+        case "Y":
+            return { bar_style: "visibility: hidden", txt_class: "co-bar-power-cop", text: "POWER" }
+        case "S":
+            return { bar_style: "visibility: hidden", txt_class: "co-bar-power-scop", text: "SUPER" }
+        case "N":
+            return { bar_style: "visibility: visible", txt_class: "", text: "" }
+        default:
+            break;
+    }
 });
 
-
 // TODO: display text on tooltip
-// TODO: display fill precentage
+// TODO: display powerbtns
 
 // TODO: Power bar animation
 // if(scopPercent >= 100) {
@@ -220,28 +214,26 @@ const powerStarsFillePercentage = computed(() => {
     // const scopPercent = copCurrent * 100 / scopMax;
 
     let copCurrent = gameStore.playersInfo[props.playerId]!.players_co_power / 10;
-
-    let powerStarStyle: { cop: string[], scop: string[] } = { cop: [], scop: [] };
-    const starWorth = CopStarsWorth.value[props.playerId];
-    if (!starWorth) return undefined;
-    const copStarsCount = CopStarsCount[props.playerId]!.copStarsCount;
-    const totalStarsCount = copStarsCount + CopStarsCount[props.playerId]!.scopStarsCount;
-    // let powerStars = useTemplateRef("power-star");
+    const playerStarWorth = CoStarsWorth.value[props.playerId];
+    if (!playerStarWorth) return undefined;;
+    const playerStarsCount = CoStarsCount[props.playerId]!;
+    let powerStarStyle = {
+        cop: [...Array(playerStarsCount.cop).keys()].map(() => ""),
+        scop: [...Array(playerStarsCount.scop).keys()].map(() => ""),
+    };
     let starsFilled = 0;
     const push = (starWidth: number) => {
-        if (starsFilled >= copStarsCount) {
-            powerStarStyle.scop.push(`--fill-percentage: ${starWidth}%`);
-        } else {
-            powerStarStyle.cop.push(`--fill-percentage: ${starWidth}%`);
+        const style = `--fill-percentage: ${starWidth}%`;
+        if (starsFilled < playerStarsCount.cop) {
+            powerStarStyle.cop[starsFilled] = style;
+        } else if (starsFilled < (playerStarsCount.total)) {
+            powerStarStyle.scop[starsFilled - playerStarsCount.cop] = style;
+            console.log(powerStarStyle.scop)
         }
     };
-    while (copCurrent >= starWorth) {
-        // if (starIndex >= totalStarsCount) break;
-
-        const starWidth = totalStarsCount > 6 ? 115 : 110;
-        push(starWidth);
-
-        copCurrent -= starWorth;
+    while (copCurrent >= playerStarWorth) {
+        push(100);
+        copCurrent -= playerStarWorth;
 
         //Add animation class
         // if(starIndex <= copStars && copPercent >= 100) {
@@ -252,13 +244,11 @@ const powerStarsFillePercentage = computed(() => {
 
         starsFilled += 1;
     }
-
     // Fill the last uncompleted star
-    if (copCurrent > 0 && copCurrent <= starWorth) {
-        const starWidth = copCurrent * 100 / starWorth;
+    if (copCurrent > 0 && copCurrent <= playerStarWorth) {
+        const starWidth = copCurrent * 100 / playerStarWorth;
         push(starWidth);
     }
-
     return powerStarStyle;
 });
 

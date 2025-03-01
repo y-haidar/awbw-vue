@@ -7,7 +7,7 @@ export const gameStore = reactive({
 });
 
 /** The current power needed to fill a star  */
-export const CopStarsWorth = computed(() => {
+export const CoStarsWorth = computed(() => {
     let rtv: Record<string | number, number> = {};
     for (const player_id of Object.keys(gameStore.playersInfo)) {
         const player = gameStore.playersInfo[player_id]!;
@@ -19,13 +19,13 @@ export const CopStarsWorth = computed(() => {
     return rtv;
 });
 
-export const CopStarsCount = (() => {
-    let rtv: Record<string | number, { copStarsCount: number, scopStarsCount: number, totalStarCount: number }> = {};
+export const CoStarsCount = (() => {
+    let rtv: Record<string | number, { cop: number, scop: number, total: number }> = {};
     for (const player_id of Object.keys(gameStore.playersInfo)) {
         // let starWorth = CopStarsWorth.value[player_id]!;
-        const copStarCount = gameStore.playersInfo[player_id]!.co_max_power / 90000;
-        const scopStarCount = (gameStore.playersInfo[player_id]!.co_max_spower / 90000) - copStarCount;
-        rtv[player_id] = { copStarsCount: copStarCount, scopStarsCount: scopStarCount, totalStarCount: copStarCount + scopStarCount };
+        const cop = gameStore.playersInfo[player_id]!.co_max_power / 90000;
+        const scop = (gameStore.playersInfo[player_id]!.co_max_spower / 90000) - cop;
+        rtv[player_id] = { cop: cop, scop: scop, total: cop + scop };
     }
 
     return rtv;
@@ -166,7 +166,11 @@ export interface PlayersInfoEntry {
     co_max_power: number;
     co_max_spower: number;
     players_co_power: number;
-    players_co_power_on: string;
+    /** - "Y" -> Power is active.
+     * - "S" -> Super power is active.
+     * - "N" -> No power is active
+    */
+    players_co_power_on: "Y" | "S" | "N";
     players_co_max_power: number;
     players_co_max_spower: number;
     players_co_image: string;
