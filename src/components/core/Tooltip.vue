@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { PropType } from 'vue';
 import { computed, useAttrs } from 'vue'
 
 const attrs = useAttrs();
@@ -30,7 +29,7 @@ let user_class = computed(() => {
     position: relative;
 }
 
-.tooltip-parent:hover .tooltip {
+.tooltip-parent:hover .tooltip:not(:hover) {
     visibility: visible;
 }
 
