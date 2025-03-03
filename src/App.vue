@@ -5,6 +5,8 @@ import GroupBtn, { type GroupBtnItem } from './components/core/GroupBtn.vue';
 import MyMenu from './components/MyMenu.vue';
 import GameMap from './components/game/GameMap.vue';
 import PowerBar from './components/PlayersTable/PowerBar.vue';
+import PlayerCard from './components/PlayersTable/PlayerCard.vue';
+import PlayerStat from './components/PlayersTable/PlayerStat.vue';
 // import Tooltip from './components/core/Tooltip.vue';
 // import GroupBtnItem from './components/game/GroupBtnItem.vue';
 // import ToolsBtn from './components/game/ToolsBtn.vue';
@@ -19,7 +21,7 @@ const items: GroupBtnItem[] = [
 <template>
   <div class="con">
     <div class="test">
-      <PowerBar :player-id="3188637" />
+      <PlayerCard :player-id="3203387" />
     </div>
     <div class="test">
       <!-- <follow></follow> -->
@@ -52,6 +54,8 @@ const items: GroupBtnItem[] = [
   justify-content: center;
   align-items: center;
   width: 100%;
+  image-rendering: pixelated;
+  font-family: "Nova Square", cursive !important;
 }
 
 .con {

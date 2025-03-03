@@ -167,14 +167,10 @@
 import { gameStore, CoStarsWorth, CoStarsCount } from '@/game/game_state';
 import Tooltip from '../core/Tooltip.vue';
 import { computed } from 'vue';
-import { playersInfo } from '@/game/game_state_demo';
 
-const props = defineProps({
-    playerId: {
-        type: Number,
-        required: true,
-    },
-});
+const props = defineProps<{
+    playerId: number | string
+}>();
 
 // defineExpose
 
