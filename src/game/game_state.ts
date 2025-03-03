@@ -1,9 +1,20 @@
 import { computed, reactive } from "vue";
-import { playersInfo } from "./game_state_demo";
+import { countriesColors, coTheme, endData, playersInfo, playersUnitCount, serverTimezone, terrainPath, unitsInfo } from "./game_state_demo2";
+import { coInfo } from "./co_info";
 
 export const gameStore = reactive({
     playersInfo,
-    playersIfnoActions: {},
+    playersInfoActions: {},
+    playersUnitCount,
+    unitsInfo,
+    terrainPath,
+    coTheme,
+    coInfo,
+    endData,
+    countriesColors,
+    serverTimezone,
+    // TODO: make an actual call
+    serverTimeOffset: 0,
 });
 
 /** The current power needed to fill a star  */
@@ -48,7 +59,29 @@ type UnitIdNumber = number;
 
 export type UnitName = "Infantry" | "Mech" | "Recon" | "T-Copter" | "APC" | "Artillery" | "Tank" | "Black Boat" | "Anti-Air" | "B-Copter" | "Lander" | "Missile" | "Rocket" | "Md.Tank" | "Cruiser" | "Sub" | "Fighter" | "Piperunner" | "Neotank" | "Bomber" | "Stealth" | "Black Bomb" | "Battleship" | "Mega Tank" | "Carrier";
 
-export type GenericUnuts = Record<UnitName, GenericUnitsEntry>;
+export type GenericUnits = Record<UnitName, GenericUnitsEntry>;
+
+export type CountriesCode = keyof CountriesColors;
+
+export type CountriesName = "Orange Star" |
+    "Blue Moon" |
+    "Green Earth" |
+    "Yellow Comet" |
+    "Black Hole" |
+    "Red Fire" |
+    "Grey Sky" |
+    "Brown Desert" |
+    "Amber Blaze" |
+    "Jade Sun" |
+    "Cobalt Ice" |
+    "Pink Cosmos" |
+    "Teal Galaxy" |
+    "Purple Lightning" |
+    "Acid Rain" |
+    "White Nova" |
+    "Azure Asteroid" |
+    "Noir Eclipse" |
+    "Silver Claw";
 
 /** 
  * Record<X_Index, Recrod<Y_Index, BuildingsInfo
@@ -146,9 +179,9 @@ export interface BuildingsInfoEntry {
     buildings_team: string;
     buildings_x: number;
     buildings_y: number;
-    countries_code: string | null;
+    countries_code: CountriesCode | null;
     countries_id: number | null;
-    countries_name: string | null;
+    countries_name: CountriesName | null;
     terrain_defense: number;
     terrain_id: number;
     terrain_name: string;
@@ -175,8 +208,8 @@ export interface PlayersInfoEntry {
     players_co_max_spower: number;
     players_co_image: string;
     players_funds: number;
-    countries_code: string;
-    countries_name: string;
+    countries_code: CountriesCode;
+    countries_name: CountriesName;
     numProperties: number;
     cities: number;
     labs: number;
@@ -235,7 +268,7 @@ export interface UnitsInfoEntry {
     units_cargo1_units_id: number;
     units_cargo2_units_id: number;
     units_carried: string;
-    countries_code: string;
+    countries_code: CountriesCode;
     generic_id: number;
 };
 
@@ -243,4 +276,130 @@ export interface PlayersUnitCountEntry {
     total: number;
     value: number;
     count: Partial<Record<UnitName, number>>;
+};
+
+/** Use for liner gradiant colors */
+export interface CountriesColors {
+    /** Orange Star */
+    os: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Blue Moon */
+    bm: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Green Earth */
+    ge: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Yellow Comet */
+    yc: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Black Hole */
+    bh: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Red Fire */
+    rf: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Grey Sky */
+    gs: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Brown Desert */
+    bd: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Amber Blaze */
+    ab: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Jade Sun */
+    js: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Cobalt Ice */
+    ci: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Pink Cosmos */
+    pc: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Teal Galaxy */
+    tg: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Purple Lightning */
+    pl: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Acid Rain */
+    ar: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** White Nova */
+    wn: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Azure Asteroid */
+    aa: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Noir Eclipse */
+    ne: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+    /** Silver Claw */
+    sc: {
+        dark: string;
+        light: string;
+        transp: string;
+    };
+};
+
+export interface EndData {
+    day: number;
+    gameEndDate: string;
+    losers: number[];
+    message: string;
+    winners: number[];
 };
