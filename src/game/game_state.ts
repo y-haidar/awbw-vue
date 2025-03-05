@@ -1,5 +1,5 @@
 import { computed, reactive } from "vue";
-import { countriesColors, coTheme, endData, playersInfo, playersUnitCount, serverTimezone, terrainPath, unitsInfo } from "./game_state_demo2";
+import { countriesColors, coTheme, endData, playersInfo, playersUnitCount, serverTimezone, terrainPath, unitsInfo, buildingsInfo } from "./game_state_demo2";
 import { coInfo } from "./co_info";
 
 export const gameStore = reactive({
@@ -7,6 +7,7 @@ export const gameStore = reactive({
     playersInfoActions: {},
     playersUnitCount,
     unitsInfo,
+    buildingsInfo,
     terrainPath,
     coTheme,
     coInfo,
@@ -48,13 +49,15 @@ export const CoStarsCount = (() => {
 // }, 3000);
 
 // ============================= These are just for documentation purposes
-/** type is always string, but add `number` for convinece, as it is used as key */
-type PlayerId = string | number;
+/** type is always string, but added `number` for convinece, as it can be used as key */
+export type PlayerId = string | number;
 // type PlayerName = string;
-/** type is always string, but add `number` for convinece, as it is used as key */
-type UnitId = string | number;
+/** type is always string, but added `number` for convinece, as it can be used as key */
+export type UnitId = string | number;
 /** Just don't use this... */
-type UnitIdNumber = number;
+export type UnitIdNumber = number;
+/** type is always string, but added `number` for convinece, as it can be used as key */
+export type BuildingId = string | number;
 // =============================
 
 export type UnitName = "Infantry" | "Mech" | "Recon" | "T-Copter" | "APC" | "Artillery" | "Tank" | "Black Boat" | "Anti-Air" | "B-Copter" | "Lander" | "Missile" | "Rocket" | "Md.Tank" | "Cruiser" | "Sub" | "Fighter" | "Piperunner" | "Neotank" | "Bomber" | "Stealth" | "Black Bomb" | "Battleship" | "Mega Tank" | "Carrier";
@@ -84,7 +87,7 @@ export type CountriesName = "Orange Star" |
     "Silver Claw";
 
 /** 
- * Record<X_Index, Recrod<Y_Index, BuildingsInfo
+ * Record<X_Index, Recrod<Y_Index, BuildingsInfo>>
  * 
  * If encountered `[X][Y] === undefined` then assume the tile is a terrain.
  * 
@@ -101,7 +104,7 @@ export type CountriesName = "Orange Star" |
 export type BuildingsInfo = Record<number, Record<number, BuildingsInfoEntry> | BuildingsInfoEntry[]>;
 
 /** 
- * Record<X_Index, Recrod<Y_Index, TerrainInfoEntry
+ * Record<X_Index, Recrod<Y_Index, TerrainInfoEntry>>
  * 
  * If encountered `[X][Y] === undefined` then assume the tile is a building.
  * 
@@ -120,7 +123,20 @@ export type TerrainInfo = Record<number, Record<number, TerrainInfoEntry> | Terr
 export type PlayersInfo = Record<PlayerId, PlayersInfoEntry>;
 
 /** 
- * Record<X_Index, Recrod<Y_Index, TerrainInfoEntry
+ * Record<X_Index, Recrod<Y_Index, BuildingId>>
+ * 
+ * Usage:
+ * 
+ * ```js
+ * if (playersBuildings[playerId][x][y]) { 
+ *    // An owned building is present on that tile
+ *  }
+ * ```
+ * */
+export type PlayersBuildings = Record<PlayerId, Record<number, Record<number, BuildingId> | BuildingId[]>>;
+
+/** 
+ * Record<X_Index, Recrod<Y_Index, TerrainInfoEntry>>
  * 
  * If encountered `[X][Y] === undefined` then no unit on tile.
  * 
@@ -195,13 +211,14 @@ export interface PlayersInfoEntry {
     players_countries_id: number;
     players_eliminated: string;
     players_co_id: number;
-    co_name: string;
+    co_name: keyof typeof coInfo;
     co_max_power: number;
     co_max_spower: number;
     players_co_power: number;
-    /** - "Y" -> Power is active.
-     * - "S" -> Super power is active.
-     * - "N" -> No power is active
+    /**
+     * - `"Y"` -> Power is active.
+     * - `"S"` -> Super power is active.
+     * - `"N"` -> No power is active
     */
     players_co_power_on: "Y" | "S" | "N";
     players_co_max_power: number;
@@ -252,7 +269,12 @@ export interface UnitsInfoEntry {
     units_vision: number;
     units_fuel: number;
     units_fuel_per_turn: number;
-    units_sub_dive: string;
+    /**
+     * - `"N"` -> Not submerged
+     * - `"D"` -> Submerged
+     * - `"Y"` -> Stealth Hidden
+    */
+    units_sub_dive: "N" | "D" | "Y";
     units_ammo: number;
     units_short_range: number;
     units_long_range: number;
@@ -402,4 +424,10 @@ export interface EndData {
     losers: number[];
     message: string;
     winners: number[];
+};
+
+export interface Weather {
+    C: "clear",
+    S: "snow",
+    R: "rain"
 };

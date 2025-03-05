@@ -136,7 +136,7 @@ export const coInfo = {
     },
     "Von Bolt": {
         "d2d": "Units gain +10% attack and +10% defense.",
-        "cop": { name: "Ex Machina", desc: "A 2-range missile deals 3 HP damage and prevents all affected units from acting next turn. The missile targets the opponents' greatest accumulation of unit value." },
-        "scop": null,
+        "cop": { name: null, desc: null },
+        "scop": { name: "Ex Machina", desc: "A 2-range missile deals 3 HP damage and prevents all affected units from acting next turn. The missile targets the opponents' greatest accumulation of unit value." },
     },
 }
