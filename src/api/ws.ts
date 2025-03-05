@@ -172,7 +172,8 @@ export interface ExplodeReqData {
 export interface COPReqData {
     action: "Power",
     coName: keyof typeof coInfo,
-    playerID: PlayerId
+    playerID: PlayerId,
+    coPower: "Y" | "S"
 }
 
 export interface FollowReqData {
@@ -182,6 +183,11 @@ export interface FollowReqData {
 
 export interface EndTurnReqData {
     action: "End",
+    playerID: PlayerId,
+}
+
+export interface EndTurnTagReqData {
+    action: "Tag",
     playerID: PlayerId,
 }
 
@@ -256,12 +262,12 @@ export interface FireResData {
         attacker: {
             playerId: PlayerId,
             copValue: number,
-            tagValue: number | null
+            tagValue?: number | null
         },
         defender: {
             playerId: PlayerId,
             copValue: number,
-            tagValue: number | null
+            tagValue?: number | null
         }
     },
     attacker: {
@@ -411,7 +417,7 @@ export interface LaunchResData {
 export interface NextTurnResData {
     action: "NextTurn",
     nextPId: PlayerId,
-    swapCos: boolean,
+    swapCos?: boolean,
     day: number,
     nextWeather: keyof Weather,
     repaired: {
