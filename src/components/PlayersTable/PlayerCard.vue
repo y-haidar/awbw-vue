@@ -3,20 +3,21 @@
     <div class="player-card">
         <div class="player-overview">
             <div class="player-overview-main">
-                <header :style="{ 'background': bgcolor?.gradient }">
+                <header :style="{ 'background': countryColor?.gradient }">
                     <span class="player-username">
                         <a :href="`profile.php?username=${user_name}`" :title="user_name" target="_blank">
                             {{ user_name }}
                         </a>
                     </span>
                 </header>
-                <div class="player-co-section">
+                <div class="player-co-section" :style="{ 'background': isEliminated ? '#CDCDCD' : 'unset' }">
                     <div class="player-activity-status dot" />
-                    <Tooltip class="player-co-container co-container">
+                    <Tooltip
+                        :class="{ 'player-co-container': true, 'co-container': true, 'cop-on-bg': powerOn === 'Y', 'scop-on-bg': powerOn === 'S' }">
                         <a class="player-co" href="co.php#grimm" target="_blank">
                             <img class="co_portrait" :src="`/terrain/aw2/${stats.playerCoSrc}?v=1`">
                         </a>
-                        <template #tooltip>Units gain +30% attack, but lose -20% defense.</template>
+                        <template #tooltip>{{ gameStore.coInfo[coName]?.d2d }}</template>
                     </Tooltip>
                     <div class="stat-con">
                         <PlayerStat :stat="{ text: stats.currentTime }"
@@ -27,7 +28,7 @@
                 </div>
             </div>
             <div class="player-overview-stats-container">
-                <div class="player-overview-stats" :style="{ 'border-color': bgcolor?.solid }">
+                <div class="player-overview-stats" :style="{ 'border-color': countryColor?.solid }">
                     <PlayerStat :stat="{ text: stats.totalUnits }" class="player-secondary-stat"
                         :icon="{ src: '/terrain/ani/bdinfantry.gif', style: { 'margin-right': '4px' } }" />
                     <PlayerStat :stat="{ text: stats.unitValue }" class="player-secondary-stat">
@@ -93,10 +94,6 @@ header {
 /* .player-overview-info {} */
 
 .player-co-section {
-    /* TODO: move bg to computed var */
-    /* player-overview-eliminated-bg */
-    background: #CDCDCD;
-
     align-items: center;
     display: flex;
     justify-content: space-between;
@@ -131,6 +128,16 @@ header {
 img.co_portrait {
     height: 32px;
     width: 32px;
+}
+
+.cop-on-bg {
+    background: rgba(236, 53, 53, 0.5);
+    box-shadow: 0 0 4px 1px rgba(236, 53, 53);
+}
+
+.scop-on-bg {
+    background: rgba(0, 102, 255, 0.5);
+    box-shadow: 0 0 4px 1px rgba(0, 102, 255);
 }
 
 /* ================================================ */
@@ -186,7 +193,7 @@ const props = defineProps<{
 }>();
 
 
-const bgcolor = computed(() => {
+const countryColor = computed(() => {
     const countries_code = gameStore.playersInfo[props.playerId]?.countries_code;
     if (!countries_code) return;
     const colors = gameStore.countriesColors[countries_code];
@@ -198,6 +205,8 @@ const bgcolor = computed(() => {
     return { gradient: "linear-gradient(to right, " + countryLight + ", " + countryDark + ")", solid: countryDark };
 });
 
+const isEliminated = computed(() => gameStore.endData.losers.includes(Number(props.playerId)));
+
 const stats = computed(() => {
     const playerInfo = gameStore.playersInfo[props.playerId];
     const funds = playerInfo?.players_funds;
@@ -207,8 +216,8 @@ const stats = computed(() => {
     const income = playerInfo?.players_income;
     const coName = playerInfo?.co_name;
     const coTheme = gameStore.coTheme;
-    const eliminated = gameStore.endData.losers.includes(Number(props.playerId));
-    const playerCoSrc = (!eliminated ? "" : "gs_") + coTheme + coName?.replace(" ", "").toLowerCase() + ".png";
+    const playerCoSrc = (!isEliminated.value ? "" : "gs_") + coTheme + coName?.replace(" ", "").toLowerCase() + ".png";
+
 
     let currentTime: string | undefined;
     if (webkitFix) {
@@ -233,8 +242,14 @@ const stats = computed(() => {
 
 const user_name = computed(() => gameStore.playersInfo[props.playerId]?.users_username);
 
-// TODO: look at formatTimer`, `getServerTimeOffset` and `startPlayerTimer` in `game.js`
+const powerOn = computed(() => gameStore.playersInfo[props.playerId]!.players_co_power_on);
 
+const coName = computed(() => {
+    const name = gameStore.playersInfo[props.playerId]?.co_name;
+    return name as keyof typeof gameStore.coInfo;
+});
+
+// TODO: look at formatTimer`, `getServerTimeOffset` and `startPlayerTimer` in `game.js`
 // `getServerTimeOffset` response: {"receive":1740875809.4784,"send":1740875809.4785}
 
 

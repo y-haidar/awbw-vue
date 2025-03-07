@@ -1,10 +1,5 @@
 <template>
     <div class="player-overview-bar">
-        <!-- {{ CopStarsWorth }} -->
-        <!-- {{ playersInfo[playerId]?.co_name }} -->
-        <!-- {{ copm_val / 10 }} -->
-        <!-- {{ powerStarsFillePercentage }} -->
-
         <!-- TODO: class combine? -->
         <!-- `.main-co-bar`: used in js -->
         <!-- `.co-bar-container`: used in css -->
@@ -21,11 +16,11 @@
                     <span class="cop-percent-display power-info">
                         <!-- <img src="terrain/aw2/redstar.gif"> -->
                         <span class="percent-display">
-                            <span>None</span>
+                            <span>{{ tooltipText?.cop.info.name || "None" }}</span>
                             <span>
                                 [
-                                <span class="cop-value">0</span> /
-                                <span class="cop-max-value">90000</span>
+                                <span class="cop-value">{{ tooltipText?.cop.current }}</span> /
+                                <span class="cop-max-value">{{ tooltipText?.cop.max }}</span>
                                 ]
                             </span>
                         </span>
@@ -33,11 +28,11 @@
                     <span class="scop-percent-display power-info">
                         <!-- <img src="terrain/aw2/bluestar.gif"> -->
                         <span class="percent-display">
-                            <span>Ex Machina</span>
+                            <span>{{ tooltipText?.scop.info.name }}</span>
                             <span>
                                 [
-                                <span class="scop-value">0</span> /
-                                <span class="scop-max-value">90000</span>
+                                <span class="scop-value">{{ tooltipText?.scop.current }}</span> /
+                                <span class="scop-max-value">{{ tooltipText?.scop.max }}</span>
                                 ]
                             </span>
                         </span>
@@ -58,15 +53,28 @@
     --border-size: 1px;
 }
 
+/* PowerBar Tooltip
+* =====================================================
+* =====================================================
+* ===================================================== */
+
+.power-percent-display {
+    display: flex;
+    flex-direction: column;
+}
+
+.percent-display {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 /* PowerBar Text
 * =====================================================
 * =====================================================
 * ===================================================== */
 
 .cop-on-text {
-    /* from inline */
-    /* visibility: hidden; */
-    /* from class */
     cursor: default;
     position: absolute;
 }
@@ -192,7 +200,28 @@ const powerText = computed(() => {
     }
 });
 
-// TODO: display text on tooltip
+const tooltipText = computed(() => {
+    const playerInfo = gameStore.playersInfo[props.playerId];
+    if (!playerInfo) return;
+
+    const coName = playerInfo.co_name as keyof typeof gameStore.coInfo;
+    const copPower = playerInfo.players_co_power / 10;
+    const copMaxPower = playerInfo.players_co_max_power / 10;
+    const scopMaxPower = playerInfo.players_co_max_spower / 10;
+
+    return {
+        cop: {
+            info: gameStore.coInfo[coName]?.cop || 'None',
+            current: copPower,
+            max: copMaxPower
+        },
+        scop: {
+            info: gameStore.coInfo[coName]?.scop || 'None',
+            current: copPower,
+            max: scopMaxPower
+        }
+    };
+});
 // TODO: display powerbtns
 
 // TODO: Power bar animation
@@ -247,17 +276,6 @@ const powerStarsFillePercentage = computed(() => {
     }
     return powerStarStyle;
 });
-
-// const powerStars = useTemplateRef("power-star");
-// powerStars.value?.map((el, i) => {
-//     console.log(el)
-//     el.style.setProperty(`--fill-percentage`, '100%');
-// })
-// watch(powerStarsFillePercentage, (newPercentages, _oldPercentages) => {
-//     console.log("inside watcher");
-//     if (!newPercentages) return;
-// })
-
 
 // toggleCopButtons(viewerPId);
 </script>
