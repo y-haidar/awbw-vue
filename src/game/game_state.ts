@@ -1,5 +1,5 @@
 import { computed, reactive } from "vue";
-import { countriesColors, coTheme, endData, playersInfo, playersUnitCount, serverTimezone, terrainPath, unitsInfo, buildingsInfo } from "./game_state_demo2";
+import { countriesColors, coTheme, endData, playersInfo, playersUnitCount, serverTimezone, terrainPath, unitsInfo, buildingsInfo, gameWeather, viewerPId, viewerTeam, viewerColors } from "./game_state_demo2";
 import { coInfo } from "./co_info";
 
 export const gameStore = reactive({
@@ -13,6 +13,12 @@ export const gameStore = reactive({
     coInfo,
     endData,
     countriesColors,
+    viewer: {
+        playerId: viewerPId,
+        team: viewerTeam,
+        colors: viewerColors,
+    },
+    weather: gameWeather,
     serverTimezone,
     // TODO: make an actual call
     serverTimeOffset: 0,
@@ -286,7 +292,7 @@ export interface UnitsInfoEntry {
     units_moved: number;
     units_capture: number;
     units_fired: number;
-    units_hit_points: number;
+    units_hit_points: number | "?";
     units_cargo1_units_id: number;
     units_cargo2_units_id: number;
     units_carried: string;
@@ -431,3 +437,8 @@ export interface Weather {
     S: "snow",
     R: "rain"
 };
+
+export interface GameWeather {
+    code: keyof Weather;
+    name: Weather[keyof Weather];
+}
